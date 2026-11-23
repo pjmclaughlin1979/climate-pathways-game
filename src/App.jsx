@@ -119,6 +119,8 @@ export default function App() {
               />
               <b>{explore.year}</b>
             </label>
+            {/* On narrow screens the legend moves out of the map and into this card. */}
+            <arcgis-legend reference-element="game-map" class="explore-legend" />
             <p className="muted tiny">
               {SCENARIO_BY_ID[explore.track].name}. {state.phase === "setup" ? "Click a county to choose it." : "Click any county for details."}
             </p>

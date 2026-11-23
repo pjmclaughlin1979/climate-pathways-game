@@ -208,11 +208,11 @@ export default function MapView({ variable, track, year, selectedCounty, onCount
 
   return (
     <div className="map-wrap">
-      <arcgis-map ref={mapRef} center="-8.1,53.45" zoom="7">
+      <arcgis-map id="game-map" ref={mapRef} center="-8.1,53.45" zoom={window.innerWidth < 700 ? "6" : "7"}>
         <arcgis-zoom slot="top-right" />
         <arcgis-home slot="top-right" />
         {/* A plain slotted legend stays inside the map's stacking context, so modals cover it. */}
-        <arcgis-legend slot="bottom-right" style={{ maxHeight: "45vh", maxWidth: "260px" }} />
+        <arcgis-legend slot="bottom-right" class="map-legend" />
       </arcgis-map>
       {status === "loading" && <div className="map-status">Loading county boundaries…</div>}
       {status === "error" && <div className="map-status error">The map couldn't load: {error}</div>}

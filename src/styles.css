@@ -58,6 +58,8 @@ code { background: #eef1f4; padding: 1px 4px; border-radius: 4px; font-size: 12p
 .map-status.error { color: var(--red); }
 .card { background: rgba(255,255,255,0.96); border-radius: 10px; box-shadow: 0 2px 14px rgba(20,39,63,0.16); }
 .explore { position: absolute; top: 12px; left: 12px; padding: 10px 12px; width: 300px; display: flex; flex-direction: column; gap: 8px; }
+arcgis-legend.map-legend { max-height: 45vh; max-width: 260px; }
+arcgis-legend.explore-legend { display: none; }
 .explore-title { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); }
 .chips { display: flex; gap: 4px; flex-wrap: wrap; }
 .chips button { padding: 3px 7px; font-size: 12px; border-color: var(--c); }
@@ -205,10 +207,30 @@ table.stress { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .popup-table td { font-weight: 700; }
 
 @media (max-width: 1000px) {
+  /* Stack map, projection controls and game panel, and let the page scroll as a whole. */
+  html, body, #root { height: auto; }
+  .app { min-height: 100%; height: auto; }
+  .topbar { flex-wrap: wrap; gap: 8px 12px; }
+  .brand { min-width: 0; }
+  .brand small { display: none; }
+  .top-actions { flex-basis: 100%; margin-left: 0; }
+  .top-actions button { white-space: nowrap; padding: 5px 10px; font-size: 13px; }
+  .top-actions .primary { flex: 1; }
+  .hud { order: 3; flex-basis: 100%; gap: 16px; padding-bottom: 2px; }
   .main { flex-direction: column; }
-  .map-col { min-height: 45vh; }
+  .map-col { flex: none; display: flex; flex-direction: column; }
+  .map-wrap { position: relative; height: 55vh; min-height: 320px; }
+  .explore { position: static; width: auto; border-radius: 0; box-shadow: none; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "title title" "var year" "chips chips" "legend legend" "hint hint"; align-items: center; gap: 6px 12px; padding: 8px 12px; }
+  .explore-title { grid-area: title; }
+  .explore select { grid-area: var; min-width: 0; }
+  .explore .year { grid-area: year; }
+  .explore .chips { grid-area: chips; }
+  .explore .tiny { grid-area: hint; margin: 0; }
+  arcgis-legend.map-legend { display: none; }
+  arcgis-legend.explore-legend { display: block; grid-area: legend; }
   .side { width: 100%; border-left: 0; }
+  .game-panel, .panel-scroll { overflow: visible; }
   .about { grid-template-columns: 1fr; }
   .report-grid { grid-template-columns: 1fr 1fr; }
-  .explore { width: 240px; }
+  .plaus { grid-template-columns: 140px 1fr 36px; }
 }
