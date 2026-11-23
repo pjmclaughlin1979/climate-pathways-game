@@ -73,7 +73,7 @@ export function observe(seed, world, county, region, year) {
     if (h === "heat") v = Math.max(0.3, v);
     hazards[h] = v;
   }
-  if (county.coast === 0) hazards.coastal = 0;
+  if (!county.coastal) hazards.coastal = 0;
   return {
     year,
     gwl: g.gwl + 0.08 * randn(seed, "obs-gwl", year),

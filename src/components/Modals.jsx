@@ -22,6 +22,12 @@ export function Modal({ title, children, onClose, wide }) {
   );
 }
 
+const ordinal = (n) => {
+  const t = n % 100;
+  const suf = t >= 11 && t <= 13 ? "th" : { 1: "st", 2: "nd", 3: "rd" }[n % 10] ?? "th";
+  return `${n}${suf}`;
+};
+
 const eur = (v) => `€${v >= 100 ? Math.round(v).toLocaleString("en-IE") : v.toFixed(1)}M`;
 
 export function TurnReport({ state, onClose }) {
@@ -127,8 +133,8 @@ export function EndScreen({ state, onRestart }) {
           <div className="muted small">
             Climate sensitivity {world.sensitivity.toFixed(2)}× central ·{" "}
             {world.ice ? "ice-sheet instability: YES (high-end sea-level rise)" : "no ice-sheet instability"} ·
-            Irish regional response at the {Math.round(50 + 40 * (world.regional ?? 0))}th percentile of the TRANSLATE
-            ensemble
+            Irish regional response at the {ordinal(Math.round(50 + 40 * (world.regional ?? 0)))} percentile of the
+            TRANSLATE ensemble
           </div>
         </div>
         <div className="grade">
@@ -312,15 +318,32 @@ export function AboutModal({ onClose }) {
               +1 m sea level) Future Scenarios.
             </li>
             <li>
-              <b>Exposure and damages</b> are stylised. They scale with Census 2022 population and
-              expert-judgement exposure indices. Costs scale with each county's baseline damage.
+              <b>Flood exposure</b> comes from OPW flood maps on{" "}
+              <a href="https://www.floodinfo.ie/" target="_blank" rel="noreferrer">
+                floodinfo.ie
+              </a>
+              : National Coastal Flood Hazard Mapping 2021, plus CFRAM community-scale and NIFM river
+              flood extents. They're overlaid on Census 2022 Small Area population to count the
+              people inside each flood zone at three flood probabilities, for each OPW scenario
+              (sea level +0.5 to +2.0 m; river flows +20% and +30%). That sets each county's
+              baseline flood damage and the shape of its damage curve as the climate changes. The
+              maps ignore existing defences. The € value is calibrated so national river-flood
+              damage matches the Central Bank of Ireland's 2024 estimate of about €101m a year
+              for inland flooding. Coastal flooding uses the same rate. The maps show where floods
+              reach, not how deep, so the game adds an assumed depth factor: damage per person
+              rises 100% per 0.5 m of sea-level rise and 50% per 30% increase in river flows.
+            </li>
+            <li>
+              <b>Heat and water-supply exposure</b> are stylised. They scale with Census 2022
+              population and expert-judgement indices. All costs scale with each county's baseline
+              damage.
             </li>
           </ul>
           <p className="warn-note">
             This is a serious game for learning and discussion. It isn't an engineering or
-            investment appraisal. The climate signals are real TRANSLATE data, but exposure and
-            damages are stylised. To make it research-grade, replace the exposure indices with
-            CFRAM and NIFM damage data.
+            investment appraisal. Climate signals are real TRANSLATE data and flood exposure is
+            derived from real OPW flood maps. But people are spread evenly across each Small
+            Area, the maps are strategic (not property-level) and the € values are assumptions.
           </p>
         </section>
       </div>

@@ -157,7 +157,7 @@ export function countyClimate(county, region, gwl, gslr, year, q = 0) {
   const heavyRain = pctFromPresent(rx, T("rx1day", G0));
   const summerRain = pctFromPresent(jja, T("summerRain", G0));
   const localSlr =
-    county.coast > 0 ? 0.9 * gslr + (county.rsl * (year - 2020)) / 1000 : null;
+    county.coastal ? 0.9 * gslr + (county.rsl * (year - 2020)) / 1000 : null;
   return {
     dT1976: T("tmean", gwl),
     rx1dayVs1976: rx,

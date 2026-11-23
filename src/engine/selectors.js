@@ -14,9 +14,9 @@ export function hazardStatus(state, h) {
   const effNow = portfolioEffect(h, act);
   const effOwned = portfolioEffect(h, own);
   const E = state.exposure[h];
-  const eadNow = ead(base[h], h, Math.max(HAZARDS[h].xMin, sp), effNow, E);
-  const tpNow = tippingPoint(h, effNow, E, state.tolerance);
-  const tpOwned = tippingPoint(h, effOwned, E, state.tolerance);
+  const eadNow = ead(base[h], h, Math.max(HAZARDS[h].xMin, sp), effNow, E, county.id);
+  const tpNow = tippingPoint(h, effNow, E, state.tolerance, county.id);
+  const tpOwned = tippingPoint(h, effOwned, E, state.tolerance, county.id);
   return {
     signpost: sp,
     eadNow,
@@ -34,7 +34,7 @@ export function hazardStatus(state, h) {
 export function tpWith(state, h, id) {
   const own = ownedIds(state.measures);
   const ids = [...own, id, ...MEASURE_BY_ID[id].requires];
-  return tippingPoint(h, portfolioEffect(h, ids), state.exposure[h], state.tolerance);
+  return tippingPoint(h, portfolioEffect(h, ids), state.exposure[h], state.tolerance, state.countyId);
 }
 
 export function suggestedTrigger(state, id) {
@@ -125,7 +125,7 @@ export function mapValue(countyId, variable, track, year) {
     for (const h of Object.keys(b)) {
       if (!b[h]) continue;
       now += b[h];
-      tot += ead(b[h], h, Math.max(HAZARDS[h].xMin, c.hazards[h]), eff, 1);
+      tot += ead(b[h], h, Math.max(HAZARDS[h].xMin, c.hazards[h]), eff, 1, countyId);
     }
     return now ? tot / now : null;
   }

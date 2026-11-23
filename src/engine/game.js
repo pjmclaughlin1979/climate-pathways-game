@@ -192,7 +192,7 @@ function advance(prev) {
       const eff = portfolioEffect(h, act);
       s.exposure[h] *= 1 + growthRate(h, eff);
       const x = clim.hazards[h];
-      const e = ead(base[h], h, x, eff, s.exposure[h]);
+      const e = ead(base[h], h, x, eff, s.exposure[h], county.id);
       const u = rand(s.seed, "shock", h, y);
       let f = 0.45;
       if (u > 0.85) f = 4.12 * (0.5 + rand(s.seed, "size", h, y));

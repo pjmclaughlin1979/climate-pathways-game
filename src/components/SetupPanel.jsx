@@ -1,6 +1,7 @@
 import { COUNTY_LIST, COUNTIES, REGIONS, baseEAD } from "../data/counties.js";
 import { HAZARDS, HAZARD_IDS } from "../data/measures.js";
 import { DIFFICULTY } from "../engine/game.js";
+import { opwCounty } from "../data/flood.js";
 
 export const TOLERANCES = [
   { v: 1.0, label: "No worse than today (1.0×)" },
@@ -12,6 +13,7 @@ export const TOLERANCES = [
 export default function SetupPanel({ setup, setSetup, onStart, onAbout }) {
   const county = COUNTIES[setup.countyId];
   const base = county ? baseEAD(county) : null;
+  const opw = county ? opwCounty(county.id) : null;
   return (
     <div className="panel-scroll setup">
       <h2>Plan for a future you can't predict</h2>
@@ -55,7 +57,23 @@ export default function SetupPanel({ setup, setSetup, onStart, onAbout }) {
               </div>
             ))}
           </div>
-          <p className="muted small">Expected annual damage today, with today's defences.</p>
+          <p className="muted small">Expected annual damage today. Flood figures are from OPW flood maps.</p>
+          {opw && (
+            <p className="opw-line small">
+              🗺️ OPW flood maps × Census 2022: about{" "}
+              <b>{Math.round(opw.fluvial.c.aep0100).toLocaleString("en-IE")}</b> people live in the 1% (1-in-100-year)
+              river flood zone
+              {opw.coastal.c.aep0200 >= 1 && (
+                <>
+                  {" "}and <b>{Math.round(opw.coastal.c.aep0200).toLocaleString("en-IE")}</b> in the 0.5% coastal
+                  zone, rising to <b>{Math.round(opw.coastal.h.aep0200).toLocaleString("en-IE")}</b> with 1 m of
+                  sea-level rise
+                </>
+              )}
+              . These are upper-end strategic estimates: they assume people are spread evenly across each
+              Census small area, and they ignore existing defences.
+            </p>
+          )}
         </div>
       )}
 

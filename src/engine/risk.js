@@ -1,6 +1,7 @@
 // Risk model: portfolio effects, expected annual damage and adaptation tipping points.
 import { HAZARDS, MEASURE_BY_ID, MEASURES } from "../data/measures.js";
 import { expectedClimate, TRACKS } from "../data/climate.js";
+import { floodCurve } from "../data/flood.js";
 
 /** Combined effect of a set of measure ids on one hazard. */
 export function portfolioEffect(hazardId, ids) {
@@ -31,9 +32,18 @@ export function growthRate(hazardId, effect) {
   return effect.hasProtect ? hz.leveeGrowth : hz.growth;
 }
 
-export function ead(base, hazardId, x, effect, exposure = 1) {
+/**
+ * Damage response for a hazard in a county: risk relative to today at hazard level x with
+ * design-standard headroom H. Flood hazards use the county's OPW-derived curve.
+ */
+export function response(hazardId, countyId, x, H) {
+  const curve = countyId ? floodCurve(countyId, hazardId) : null;
+  return curve ? curve(x - H) : HAZARDS[hazardId].response(x, H);
+}
+
+export function ead(base, hazardId, x, effect, exposure = 1, countyId = null) {
   if (!base) return 0;
-  return base * exposure * effect.mult * HAZARDS[hazardId].response(x, effect.H);
+  return base * exposure * effect.mult * response(hazardId, countyId, x, effect.H);
 }
 
 /**
@@ -42,9 +52,9 @@ export function ead(base, hazardId, x, effect, exposure = 1) {
  * threshold) and exceeded means the objective is already failed at the minimum
  * hazard level.
  */
-export function tippingPoint(hazardId, effect, exposure, tolerance) {
+export function tippingPoint(hazardId, effect, exposure, tolerance, countyId = null) {
   const hz = HAZARDS[hazardId];
-  const f = (x) => exposure * effect.mult * hz.response(x, effect.H) - tolerance;
+  const f = (x) => exposure * effect.mult * response(hazardId, countyId, x, effect.H) - tolerance;
   let lo = hz.xMin;
   let hi = hz.xMax * 4;
   if (f(lo) >= 0) return { x: lo, exceeded: true };
@@ -90,7 +100,7 @@ export function fastRate(county, region, hazardId, level) {
 
 export function suggestTrigger(county, region, hazardId, currentIds, measureId, exposure, tolerance) {
   const m = MEASURE_BY_ID[measureId];
-  const tp = tippingPoint(hazardId, portfolioEffect(hazardId, currentIds), exposure, tolerance);
+  const tp = tippingPoint(hazardId, portfolioEffect(hazardId, currentIds), exposure, tolerance, county.id);
   const hz = HAZARDS[hazardId];
   if (tp.exceeded) return hz.xMin;
   if (!isFinite(tp.x)) return null;

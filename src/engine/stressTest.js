@@ -48,7 +48,7 @@ export function simulatePlan(county, region, base, plan, track) {
       if (!base[h]) continue;
       const eff = portfolioEffect(h, act);
       exposure[h] *= 1 + growthRate(h, eff);
-      npvDamage += ead(base[h], h, clim.hazards[h], eff, exposure[h]) * df(y);
+      npvDamage += ead(base[h], h, clim.hazards[h], eff, exposure[h], county.id) * df(y);
     }
     for (const id of act) npvCost += MEASURE_BY_ID[id].opex * base[MEASURE_BY_ID[id].hazard] * df(y);
   }

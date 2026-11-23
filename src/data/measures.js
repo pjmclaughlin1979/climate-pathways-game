@@ -245,7 +245,7 @@ export const MEASURES = [
     id: "w_desal", hazard: "water", name: "Desalination plant",
     desc: "A climate-independent supply adding about 20% headroom. Quick to build, but energy-hungry and expensive to run. Coastal counties only.",
     capex: 14, opex: 0.6, lead: 7, H: 20, tags: [],
-    eligible: (c) => c.coast > 0,
+    eligible: (c) => c.coastal,
   }),
 ];
 
