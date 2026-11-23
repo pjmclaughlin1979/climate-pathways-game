@@ -19,6 +19,8 @@
 //   requires / excludes – path dependencies between measures
 //   tags   – noRegret | adaptive | lockIn | transformative | nature | planning
 
+import { onGdaSupply, leakageHeadroom } from "./water.js";
+
 export const HAZARDS = {
   coastal: {
     id: "coastal",
@@ -227,8 +229,9 @@ export const MEASURES = [
   }),
   M({
     id: "w_leak", hazard: "water", name: "Leakage reduction programme",
-    desc: "Mains rehabilitation that recovers about 7% headroom. Irish networks lose a very large share of treated water.",
+    desc: "Mains rehabilitation and pressure management that cut leakage to Uisce Éireann's 23% target. The headroom it frees depends on this county's actual leakage.",
     capex: 6, opex: 0.08, lead: 6, H: 7, tags: ["noRegret"],
+    eligible: (c) => leakageHeadroom(c.id) >= 1,
   }),
   M({
     id: "w_storage", hazard: "water", name: "New regional raw-water storage",
@@ -237,9 +240,9 @@ export const MEASURES = [
   }),
   M({
     id: "w_transfer", hazard: "water", name: "Strategic inter-regional water transfer",
-    desc: "A long-distance pipeline from a water-rich catchment, adding about 25% headroom. Only for water-stressed eastern counties.",
+    desc: "A long-distance pipeline from the Shannon (like the Water Supply Project, 300,000 m³/day for the Greater Dublin Area). Only for counties on the Greater Dublin supply.",
     capex: 30, opex: 0.3, lead: 18, H: 25, tags: ["transformative", "lockIn"],
-    eligible: (c) => c.water >= 0.6,
+    eligible: (c) => onGdaSupply(c.id),
   }),
   M({
     id: "w_desal", hazard: "water", name: "Desalination plant",

@@ -11,8 +11,8 @@ export function hazardStatus(state, h) {
   const sp = signpost(state.obs, h, state.year - 1);
   const act = activeIds(state.measures);
   const own = ownedIds(state.measures);
-  const effNow = portfolioEffect(h, act);
-  const effOwned = portfolioEffect(h, own);
+  const effNow = portfolioEffect(h, act, county.id);
+  const effOwned = portfolioEffect(h, own, county.id);
   const E = state.exposure[h];
   const eadNow = ead(base[h], h, Math.max(HAZARDS[h].xMin, sp), effNow, E, county.id);
   const tpNow = tippingPoint(h, effNow, E, state.tolerance, county.id);
@@ -34,7 +34,7 @@ export function hazardStatus(state, h) {
 export function tpWith(state, h, id) {
   const own = ownedIds(state.measures);
   const ids = [...own, id, ...MEASURE_BY_ID[id].requires];
-  return tippingPoint(h, portfolioEffect(h, ids), state.exposure[h], state.tolerance, state.countyId);
+  return tippingPoint(h, portfolioEffect(h, ids, state.countyId), state.exposure[h], state.tolerance, state.countyId);
 }
 
 export function suggestedTrigger(state, id) {

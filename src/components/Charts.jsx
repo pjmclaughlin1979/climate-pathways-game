@@ -105,7 +105,7 @@ export function PathwaysMap({ state, hazard, candidates, status }) {
   const own = ownedIds(state.measures);
   const E = state.exposure[hazard];
   const tol = state.tolerance;
-  const tpFor = (ids) => tippingPoint(hazard, portfolioEffect(hazard, ids), E, tol, state.countyId);
+  const tpFor = (ids) => tippingPoint(hazard, portfolioEffect(hazard, ids, state.countyId), E, tol, state.countyId);
   const base = tpFor([]);
   const cur = tpFor(own);
   const rows = [

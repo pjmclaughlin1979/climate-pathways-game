@@ -189,8 +189,8 @@ function advance(prev) {
     const row = { year: y, ead: {}, damage: {}, hazard: {} };
     for (const h of HAZARD_IDS) {
       if (!base[h]) continue;
-      const eff = portfolioEffect(h, act);
-      s.exposure[h] *= 1 + growthRate(h, eff);
+      const eff = portfolioEffect(h, act, county.id);
+      s.exposure[h] *= 1 + growthRate(h, eff, county.id);
       const x = clim.hazards[h];
       const e = ead(base[h], h, x, eff, s.exposure[h], county.id);
       const u = rand(s.seed, "shock", h, y);

@@ -2,6 +2,7 @@ import { COUNTY_LIST, COUNTIES, REGIONS, baseEAD } from "../data/counties.js";
 import { HAZARDS, HAZARD_IDS } from "../data/measures.js";
 import { DIFFICULTY } from "../engine/game.js";
 import { opwCounty } from "../data/flood.js";
+import { ueCounty } from "../data/water.js";
 
 export const TOLERANCES = [
   { v: 1.0, label: "No worse than today (1.0×)" },
@@ -14,6 +15,7 @@ export default function SetupPanel({ setup, setSetup, onStart, onAbout }) {
   const county = COUNTIES[setup.countyId];
   const base = county ? baseEAD(county) : null;
   const opw = county ? opwCounty(county.id) : null;
+  const ue = county ? ueCounty(county.id) : null;
   return (
     <div className="panel-scroll setup">
       <h2>Plan for a future you can't predict</h2>
@@ -57,7 +59,17 @@ export default function SetupPanel({ setup, setSetup, onStart, onAbout }) {
               </div>
             ))}
           </div>
-          <p className="muted small">Expected annual damage today. Flood figures are from OPW flood maps.</p>
+          <p className="muted small">
+            Expected annual damage today. Flood figures are from OPW flood maps; water figures are from Uisce Éireann.
+          </p>
+          {ue && ue.popServed > 0 && (
+            <p className="opw-line small">
+              💧 Uisce Éireann: <b>{Math.round(ue.popServed).toLocaleString("en-IE")}</b> people on public supply, with{" "}
+              <b>{Math.round((100 * ue.leakage2019) / ue.demand2019)}%</b> of water lost to leakage (2019). The dry-year
+              critical-period deficit is <b>{Math.round(ue.dycpDeficit2019 ?? 0).toLocaleString("en-IE")} m³/day</b>,
+              rising to <b>{Math.round(ue.dycpDeficit2044 ?? 0).toLocaleString("en-IE")}</b> by 2044 without new investment.
+            </p>
+          )}
           {opw && (
             <p className="opw-line small">
               🗺️ OPW flood maps × Census 2022: about{" "}

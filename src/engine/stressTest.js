@@ -46,8 +46,8 @@ export function simulatePlan(county, region, base, plan, track) {
     const clim = expectedClimate(county, region, track, y);
     for (const h of HAZARD_IDS) {
       if (!base[h]) continue;
-      const eff = portfolioEffect(h, act);
-      exposure[h] *= 1 + growthRate(h, eff);
+      const eff = portfolioEffect(h, act, county.id);
+      exposure[h] *= 1 + growthRate(h, eff, county.id);
       npvDamage += ead(base[h], h, clim.hazards[h], eff, exposure[h], county.id) * df(y);
     }
     for (const id of act) npvCost += MEASURE_BY_ID[id].opex * base[MEASURE_BY_ID[id].hazard] * df(y);

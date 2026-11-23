@@ -3,6 +3,7 @@ import { HAZARDS, MEASURE_BY_ID, TAG_INFO } from "../data/measures.js";
 import { SCENARIO_BY_ID, TRACKS } from "../data/climate.js";
 import { blockReason } from "../engine/game.js";
 import { tpWith, suggestedTrigger, costOf } from "../engine/selectors.js";
+import { measureH } from "../engine/risk.js";
 import { SignpostChart, PathwaysMap, Bar, shortName } from "./Charts.jsx";
 
 const TABS = [
@@ -120,10 +121,11 @@ function PlanTab({ state, hazard, st, dispatch }) {
   );
 }
 
-function effectText(m) {
+function effectText(m, countyId) {
   const hz = HAZARDS[m.hazard];
   const parts = [];
-  if (m.H) parts.push(hz.combine === "sum" ? `+${m.H}${hz.unit} supply headroom` : `Design standard ${hz.fmt(m.H)}`);
+  const H = measureH(m, countyId);
+  if (H) parts.push(hz.combine === "sum" ? `+${Math.round(H)}% of demand in supply headroom` : `Design standard ${hz.fmt(H)}`);
   if (m.Hadd) parts.push(`+${hz.unit === "m" ? m.Hadd.toFixed(2) + " m" : m.Hadd + hz.unit} headroom`);
   if (m.mult < 1) parts.push(`−${Math.round((1 - m.mult) * 100)}% damages`);
   if (m.growth === "stop") parts.push("Stops exposure growth");
@@ -182,7 +184,7 @@ function MeasureCard({ state, id, dispatch }) {
         </div>
         <div>
           <dt>Effect</dt>
-          <dd>{effectText(m)}</dd>
+          <dd>{effectText(m, state.countyId)}</dd>
         </div>
       </dl>
       {status !== "active" && status !== "building" && (

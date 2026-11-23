@@ -45,6 +45,9 @@ boundaries come live from Tailte Éireann's public feature service.
 | `src/data/flood.js` | OPW-derived flood baselines and county damage curves |
 | `src/data/opwExposure.json` | People in OPW flood extents per county, scenario and probability (generated) |
 | `scripts/aggregate_opw_exposure.py` | Builds that JSON from OPW flood extents and Census 2022 Small Areas |
+| `src/data/water.js` | Uisce Éireann-derived water baselines, growth, damage curves and measure headroom |
+| `src/data/uisceWater.json` | WRZ supply-demand figures aggregated per county (generated) |
+| `scripts/aggregate_uisce_water.py` | Builds that JSON from NWRP Appendix L and the Water Supply Zone data |
 | `src/data/measures.js` | Hazards, risk-response curves, adaptation measures, benchmark plans |
 | `src/engine/world.js` | Hidden world, seeded noise, observations, signposts, scenario plausibility |
 | `src/engine/risk.js` | Portfolio effects, expected annual damage, tipping points, sell-by dates, trigger suggestions |
@@ -83,9 +86,24 @@ boundaries come live from Tailte Éireann's public feature service.
   Because extent maps don't show how much deeper floods get, the curves include an assumed
   depth factor: +100% damage per person per 0.5 m of sea-level rise, and +50% per 30% more flow. The maps ignore existing defences and are strategic-scale only,
   as the OPW advises.
-- Heat and water-supply exposure and all costs are stylised. They scale with Census 2022
-  population and expert-judgement indices. This is a learning tool, not an investment
-  appraisal.
+- **Water supply comes from Uisce Éireann's National Water Resources Plan**: Framework Plan
+  Appendix L, the Supply Demand Balance summaries for 535 Water Resource Zones (WRZs), plus
+  Uisce Éireann's open-data Water Supply Zone populations. `scripts/aggregate_uisce_water.py`
+  parses the PDF and splits each WRZ across counties by the population each county draws from
+  it. The Greater Dublin Area page has no text layer, so its figures were transcribed and
+  checked: WAFU − demand = SDB. The output is `src/data/uisceWater.json`, which sets each
+  county's:
+  - baseline: its 2019 Dry Year Critical Period deficit
+  - growth: its forecast deficit in 2044
+  - climate response: demand vs available supply in its deficit zones
+  - leakage-programme headroom: real leakage down to a 23% target
+  - transfer eligibility and size: Greater Dublin supply only, sized like the 300,000 m³/day
+    Water Supply Project
+
+  Game assumptions live in `src/data/water.js`: unmet demand costs €2/m³ over 60
+  critical-period days a year, and yields fall in proportion to summer rainfall.
+- Heat exposure and all costs are stylised. They scale with Census 2022 population and an
+  urban-heat index. This is a learning tool, not an investment appraisal.
 
 ### Regenerating the TRANSLATE county data
 
@@ -111,4 +129,13 @@ curl -O https://www.cso.ie/en/media/csoie/census/census2022/SAPS_2022_Small_Area
 # About 2.5 GB in total. Then:
 .venv/bin/pip install geopandas pyogrio rasterio
 .venv/bin/python scripts/aggregate_opw_exposure.py <that-folder> src/data/opwExposure.json
+```
+
+### Regenerating the Uisce Éireann water figures
+
+```bash
+curl -L -o appL.pdf "https://water.widen.net/content/xypvwnwhsd/pdf/NWRP_FP-Appendix-L-Merged-final"
+curl -L -o wsz.xlsx "https://water.widen.net/content/use17tawmb/original/Q1-2026-Public-Water-Supply-Zone-Information.xlsx"
+.venv/bin/pip install pypdf fonttools openpyxl
+.venv/bin/python scripts/aggregate_uisce_water.py appL.pdf wsz.xlsx src/data/uisceWater.json
 ```

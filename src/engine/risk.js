@@ -2,9 +2,17 @@
 import { HAZARDS, MEASURE_BY_ID, MEASURES } from "../data/measures.js";
 import { expectedClimate, TRACKS } from "../data/climate.js";
 import { floodCurve } from "../data/flood.js";
+import { waterResponse, waterGrowth, leakageHeadroom, transferHeadroom } from "../data/water.js";
+
+/** A measure's headroom in this county: leakage and transfer schemes use Uisce Éireann figures. */
+export function measureH(m, countyId = null) {
+  if (countyId && m.id === "w_leak") return leakageHeadroom(countyId);
+  if (countyId && m.id === "w_transfer") return transferHeadroom(countyId);
+  return m.H;
+}
 
 /** Combined effect of a set of measure ids on one hazard. */
-export function portfolioEffect(hazardId, ids) {
+export function portfolioEffect(hazardId, ids, countyId = null) {
   const hz = HAZARDS[hazardId];
   let H = 0;
   let Hadd = 0;
@@ -14,9 +22,10 @@ export function portfolioEffect(hazardId, ids) {
   for (const id of ids) {
     const m = MEASURE_BY_ID[id];
     if (!m || m.hazard !== hazardId) continue;
-    if (m.H) {
+    const mH = measureH(m, countyId);
+    if (mH) {
       hasProtect = true;
-      H = hz.combine === "sum" ? H + m.H : Math.max(H, m.H);
+      H = hz.combine === "sum" ? H + mH : Math.max(H, mH);
     }
     Hadd += m.Hadd || 0;
     mult *= m.mult;
@@ -26,9 +35,11 @@ export function portfolioEffect(hazardId, ids) {
 }
 
 /** Annual exposure growth rate. Protection without planning control attracts development. */
-export function growthRate(hazardId, effect) {
+export function growthRate(hazardId, effect, countyId = null) {
   const hz = HAZARDS[hazardId];
   if (effect.stopGrowth) return 0;
+  // Water: how Uisce Éireann's forecast deficit grows with no new investment.
+  if (hazardId === "water" && countyId) return waterGrowth(countyId);
   return effect.hasProtect ? hz.leveeGrowth : hz.growth;
 }
 
@@ -37,6 +48,10 @@ export function growthRate(hazardId, effect) {
  * design-standard headroom H. Flood hazards use the county's OPW-derived curve.
  */
 export function response(hazardId, countyId, x, H) {
+  if (countyId && hazardId === "water") {
+    const w = waterResponse(countyId);
+    if (w) return w(x, H);
+  }
   const curve = countyId ? floodCurve(countyId, hazardId) : null;
   return curve ? curve(x - H) : HAZARDS[hazardId].response(x, H);
 }
@@ -100,7 +115,7 @@ export function fastRate(county, region, hazardId, level) {
 
 export function suggestTrigger(county, region, hazardId, currentIds, measureId, exposure, tolerance) {
   const m = MEASURE_BY_ID[measureId];
-  const tp = tippingPoint(hazardId, portfolioEffect(hazardId, currentIds), exposure, tolerance, county.id);
+  const tp = tippingPoint(hazardId, portfolioEffect(hazardId, currentIds, county.id), exposure, tolerance, county.id);
   const hz = HAZARDS[hazardId];
   if (tp.exceeded) return hz.xMin;
   if (!isFinite(tp.x)) return null;

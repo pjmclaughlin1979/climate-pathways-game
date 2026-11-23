@@ -334,16 +334,30 @@ export function AboutModal({ onClose }) {
               rises 100% per 0.5 m of sea-level rise and 50% per 30% increase in river flows.
             </li>
             <li>
-              <b>Heat and water-supply exposure</b> are stylised. They scale with Census 2022
-              population and expert-judgement indices. All costs scale with each county's baseline
-              damage.
+              <b>Water supply</b> comes from Uisce Éireann's National Water Resources Plan
+              (Appendix L: Supply Demand Balance summaries for 535 Water Resource Zones). Zones are
+              split across counties by the population each county's Water Supply Zones draw from
+              them. The Greater Dublin Area zone, for example, is split across Dublin, Kildare, Meath
+              and Wicklow. Each county's dry-year critical-period deficit in 2019 sets its baseline,
+              and Uisce Éireann's 2044 forecast sets how fast it grows. The ratio of demand to
+              available supply in its deficit zones shapes how drier summers deepen the deficit. A
+              leakage programme recovers the gap between the county's real leakage and a 23%
+              target. A strategic transfer, sized like the 300,000 m³/day Water Supply Project, is
+              only open to counties on the Greater Dublin supply. Unmet demand is valued at €2 per m³
+              over 60 critical-period days a year, and yields are assumed to fall in proportion to
+              summer rainfall. Both are game assumptions.
+            </li>
+            <li>
+              <b>Heat exposure</b> is stylised. It scales with Census 2022 population and an
+              urban-heat index. All costs scale with each county's baseline damage.
             </li>
           </ul>
           <p className="warn-note">
             This is a serious game for learning and discussion. It isn't an engineering or
             investment appraisal. Climate signals are real TRANSLATE data and flood exposure is
-            derived from real OPW flood maps. But people are spread evenly across each Small
-            Area, the maps are strategic (not property-level) and the € values are assumptions.
+            derived from real OPW flood maps, and water supply from Uisce Éireann's plan. But
+            people are spread evenly across each Small Area, the maps are strategic (not
+            property-level), and the € values are assumptions.
           </p>
         </section>
       </div>
