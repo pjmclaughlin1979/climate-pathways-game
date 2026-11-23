@@ -25,7 +25,7 @@ export function hazardStatus(state, h) {
     tpOwned,
     sellBy: sellByDates(county, region, h, tpOwned.x),
     exposure: E,
-    leveeWarning: effOwned.hasProtect && !effOwned.stopGrowth,
+    leveeWarning: (h === "coastal" || h === "fluvial") && effOwned.hasProtect && !effOwned.stopGrowth,
     activeCount: act.filter((id) => MEASURE_BY_ID[id].hazard === h).length,
   };
 }

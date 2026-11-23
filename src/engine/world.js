@@ -8,6 +8,7 @@ import {
   globalSlrAt,
   countyClimate,
 } from "../data/climate.js";
+import { deficitIndex } from "../data/water.js";
 import { HAZARDS, HAZARD_IDS } from "../data/measures.js";
 
 /** Deterministic hash-based random number in [0, 1), so reducers stay pure. */
@@ -69,8 +70,11 @@ export function observe(seed, world, county, region, year) {
   const c = countyClimate(county, region, g.gwl, g.gslr, year, world.regional);
   const hazards = {};
   for (const h of HAZARD_IDS) {
-    let v = c.hazards[h] + HAZARDS[h].noise * randn(seed, "obs", h, year);
+    const noise = HAZARDS[h].noise * randn(seed, "obs", h, year);
+    let v = c.hazards[h] + noise;
     if (h === "heat") v = Math.max(0.3, v);
+    // Water: a dry or wet summer moves source yields, so the noise enters through rainfall.
+    if (h === "water") v = deficitIndex(county.id, c.dryness + noise, year);
     hazards[h] = v;
   }
   if (!county.coastal) hazards.coastal = 0;

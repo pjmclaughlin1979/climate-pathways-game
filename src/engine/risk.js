@@ -2,7 +2,7 @@
 import { HAZARDS, MEASURE_BY_ID, MEASURES } from "../data/measures.js";
 import { expectedClimate, TRACKS } from "../data/climate.js";
 import { floodCurve } from "../data/flood.js";
-import { waterResponse, waterGrowth, leakageHeadroom, transferHeadroom } from "../data/water.js";
+import { waterResponse, leakageHeadroom, transferHeadroom } from "../data/water.js";
 
 /** A measure's headroom in this county: leakage and transfer schemes use Uisce Éireann figures. */
 export function measureH(m, countyId = null) {
@@ -38,8 +38,6 @@ export function portfolioEffect(hazardId, ids, countyId = null) {
 export function growthRate(hazardId, effect, countyId = null) {
   const hz = HAZARDS[hazardId];
   if (effect.stopGrowth) return 0;
-  // Water: how Uisce Éireann's forecast deficit grows with no new investment.
-  if (hazardId === "water" && countyId) return waterGrowth(countyId);
   return effect.hasProtect ? hz.leveeGrowth : hz.growth;
 }
 

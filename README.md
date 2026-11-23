@@ -94,7 +94,10 @@ boundaries come live from Tailte Éireann's public feature service.
   checked: WAFU − demand = SDB. The output is `src/data/uisceWater.json`, which sets each
   county's:
   - baseline: its 2019 Dry Year Critical Period deficit
-  - growth: its forecast deficit in 2044
+  - growth: its forecast deficit in 2044 (at half that rate after 2044, a game assumption)
+  - signpost: a deficit index (1 = today, before new measures) combining forecast demand
+    growth and lower yields in drier summers. Water triggers and tipping points use this
+    index.
   - climate response: demand vs available supply in its deficit zones
   - leakage-programme headroom: real leakage down to a 23% target
   - transfer eligibility and size: Greater Dublin supply only, sized like the 300,000 m³/day

@@ -339,8 +339,11 @@ export function AboutModal({ onClose }) {
               split across counties by the population each county's Water Supply Zones draw from
               them. The Greater Dublin Area zone, for example, is split across Dublin, Kildare, Meath
               and Wicklow. Each county's dry-year critical-period deficit in 2019 sets its baseline,
-              and Uisce Éireann's 2044 forecast sets how fast it grows. The ratio of demand to
-              available supply in its deficit zones shapes how drier summers deepen the deficit. A
+              and Uisce Éireann's 2044 forecast sets how fast it grows (at half that rate after 2044).
+              The ratio of demand to available supply in its deficit zones shapes how drier summers
+              deepen the deficit. The water signpost is that deficit index (1 = today, before new
+              measures), so water triggers respond to demand growth as well as to drier summers,
+              the way supply-demand balances are monitored in practice. A
               leakage programme recovers the gap between the county's real leakage and a 23%
               target. A strategic transfer, sized like the 300,000 m³/day Water Supply Project, is
               only open to counties on the Greater Dublin supply. Unmet demand is valued at €2 per m³

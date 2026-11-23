@@ -15,6 +15,7 @@
 // The OPW climate allowances (Mid-Range Future Scenario +20% flood flows; High-End
 // Future Scenario +30% flows and +1.0 m sea level) set the game's design standards.
 import TRANSLATE from "./translateCounties.json" with { type: "json" };
+import { deficitIndex } from "./water.js";
 
 export const SCENARIOS = [
   {
@@ -167,12 +168,13 @@ export function countyClimate(county, region, gwl, gslr, year, q = 0) {
     hotDays,
     hotRatio: hotDays / hotDaysNow,
     localSlr,
+    dryness: -summerRain,
     // Hazard drivers used by the risk model, keyed by hazard id
     hazards: {
       coastal: localSlr ?? 0,
       fluvial: heavyRain,
       heat: hotDays / hotDaysNow,
-      water: -summerRain,
+      water: deficitIndex(id, -summerRain, year),
     },
   };
 }
