@@ -1,19 +1,20 @@
-// Climate scenarios and a light-weight downscaling of them to Irish counties.
+// Climate scenarios, and Met Éireann TRANSLATE projections for each Irish county.
 //
-// Global warming levels (°C above 1850–1900) follow the IPCC AR6 WGI central
+// Global warming levels (GWL, °C above 1850–1900) follow the IPCC AR6 WGI central
 // estimates for each SSP. Global mean sea-level rise uses the AR6 median projections,
-// re-based to 2020. The national-to-county scaling is an indicative parameterisation
-// tuned to reproduce the headline Irish signals reported by:
-//   • Met Éireann TRANSLATE (Nolan et al. 2023): Ireland warms more slowly than the global
-//     mean, more in the east and midlands; heavy rainfall rises roughly with
-//     Clausius–Clapeyron; summers get drier, most of all in the east and south.
-//   • EPA Research Report 339 (Nolan & Flanagan 2020): +1–2 °C by mid-century, up to
-//     ~20% more heavy precipitation under RCP8.5, and summer rainfall falling by up to
-//     ~17–25% by late century.
-//   • OPW climate allowances: Mid-Range Future Scenario +20% flood flows; High-End
-//     Future Scenario +30% flows and +1.0 m sea level.
-// Swap `countyClimate()` for gridded TRANSLATE output for a research-grade version;
-// the game engine only depends on its return shape.
+// re-based to 2020 (TRANSLATE does not cover sea level).
+//
+// County signals come from Met Éireann's TRANSLATE projections (CMIP5 regional-model
+// ensemble, O'Brien & Nolan 2023), published at https://www.climateservices.ie/TRANSLATE/
+// as 1.5 km grids at warming levels of 1.5, 2, 2.5, 3 and 4 °C, relative to 1976–2005.
+// scripts/aggregate_translate.py averages each grid over each county into
+// translateCounties.json: annual mean temperature, summer (JJA) rainfall, the wettest
+// day of the year (Rx1day) and summer days (Tmax > 25 °C), each as the ensemble mean
+// and the 10th and 90th percentiles. This file interpolates those values to any GWL.
+//
+// The OPW climate allowances (Mid-Range Future Scenario +20% flood flows; High-End
+// Future Scenario +30% flows and +1.0 m sea level) set the game's design standards.
+import TRANSLATE from "./translateCounties.json" with { type: "json" };
 
 export const SCENARIOS = [
   {
@@ -111,30 +112,66 @@ export function globalSlrAt(scenarioId, year, s = 1, ice = false) {
   return v;
 }
 
+// Global warming level of TRANSLATE's 1976–2005 baseline period (above 1850–1900).
+const BASELINE_GWL = 0.5;
+const ANCHORS = [BASELINE_GWL, ...TRANSLATE.gwls];
+
 /**
- * County climate signals for a global state. Every value is a change relative to
- * the present day (2020) unless the name says otherwise.
+ * A TRANSLATE variable for a county at warming level `gwl`, as change from 1976–2005.
+ * Linear between warming levels, extrapolated beyond 4 °C along the 3→4 °C slope.
+ * `q` picks a point in the model spread: 0 = ensemble mean, +1 = 90th percentile,
+ * −1 = 10th percentile.
  */
-export function countyClimate(county, region, gwl, gslr, year) {
-  const dTpresent = 0.85 * (gwl - G0) * region.tF; // local warming since 2020
-  const dT1981 = 0.85 * (gwl - 0.65) * region.tF; // vs the 1981–2010 normal
-  const heavyRain = 8 * dTpresent * region.rF; // % change in 1-in-100 rainfall / flows
-  const summerRain = -7 * (gwl - G0) * region.dF; // % change in summer rainfall
-  const hotRatio = Math.exp(0.55 * dTpresent); // multiple of today's hot days
+export function translateValue(countyId, variable, gwl, q = 0) {
+  const v = TRANSLATE.vars[variable].values[countyId];
+  const pick = (i) => {
+    const m = v.mean[i];
+    return q >= 0 ? m + q * (v.p90[i] - m) : m + q * (m - v.p10[i]);
+  };
+  const ys = [0, ...TRANSLATE.gwls.map((_, i) => pick(i))];
+  return interp(ANCHORS, ys, Math.max(gwl, BASELINE_GWL));
+}
+
+export const TRANSLATE_META = {
+  source: TRANSLATE.source,
+  baselinePeriod: TRANSLATE.baselinePeriod,
+  gwls: TRANSLATE.gwls,
+  cells: TRANSLATE.cells,
+};
+
+const pctFromPresent = (v, v0) => ((1 + v / 100) / (1 + v0 / 100) - 1) * 100;
+
+/**
+ * County climate for a global state. `q` is the regional-response percentile (see
+ * translateValue). Hazard drivers are changes from the present day (2020); the
+ * *vs1976* values are TRANSLATE's own change from its 1976–2005 baseline.
+ */
+export function countyClimate(county, region, gwl, gslr, year, q = 0) {
+  const id = county.id;
+  const T = (v, g) => translateValue(id, v, g, q);
+  const rx = T("rx1day", gwl);
+  const jja = T("summerRain", gwl);
+  const su0 = TRANSLATE.baselineSummerDays[id];
+  const hotDays = Math.max(0, su0 + T("summerDays", gwl));
+  const hotDaysNow = Math.max(0.5, su0 + T("summerDays", G0));
+  const heavyRain = pctFromPresent(rx, T("rx1day", G0));
+  const summerRain = pctFromPresent(jja, T("summerRain", G0));
   const localSlr =
     county.coast > 0 ? 0.9 * gslr + (county.rsl * (year - 2020)) / 1000 : null;
   return {
-    dT1981,
+    dT1976: T("tmean", gwl),
+    rx1dayVs1976: rx,
+    summerRainVs1976: jja,
     heavyRain,
     summerRain,
-    hotDays: region.hot0 * hotRatio,
-    hotRatio,
+    hotDays,
+    hotRatio: hotDays / hotDaysNow,
     localSlr,
     // Hazard drivers used by the risk model, keyed by hazard id
     hazards: {
       coastal: localSlr ?? 0,
       fluvial: heavyRain,
-      heat: hotRatio,
+      heat: hotDays / hotDaysNow,
       water: -summerRain,
     },
   };

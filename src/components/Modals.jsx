@@ -126,7 +126,9 @@ export function EndScreen({ state, onRestart }) {
           </div>
           <div className="muted small">
             Climate sensitivity {world.sensitivity.toFixed(2)}× central ·{" "}
-            {world.ice ? "ice-sheet instability: YES (high-end sea-level rise)" : "no ice-sheet instability"}
+            {world.ice ? "ice-sheet instability: YES (high-end sea-level rise)" : "no ice-sheet instability"} ·
+            Irish regional response at the {Math.round(50 + 40 * (world.regional ?? 0))}th percentile of the TRANSLATE
+            ensemble
           </div>
         </div>
         <div className="grade">
@@ -294,11 +296,16 @@ export function AboutModal({ onClose }) {
               low-likelihood, high-impact range.
             </li>
             <li>
-              <b>Irish county signals</b> (temperature, extreme rainfall, summer rainfall, hot days)
-              are an indicative downscaling tuned to the headline results of Met Éireann's TRANSLATE
-              projections and EPA Research Report 339 (Nolan &amp; Flanagan, 2020): the east and
-              midlands warm most, extreme rainfall rises about 7–8% per °C, and summers get drier,
-              most of all in the east and south.
+              <b>Irish county signals</b> are Met Éireann's TRANSLATE projections (CMIP5 regional
+              model ensemble; O'Brien &amp; Nolan, 2023), downloaded from{" "}
+              <a href="https://www.climateservices.ie/TRANSLATE/" target="_blank" rel="noreferrer">
+                climateservices.ie/TRANSLATE
+              </a>
+              . The 1.5 km grids for annual mean temperature, summer rainfall, wettest-day rainfall
+              (Rx1day) and summer days above 25 °C are averaged over each county at 1.5, 2, 2.5, 3 and
+              4 °C of global warming, relative to 1976–2005. The game interpolates between warming
+              levels and extrapolates beyond 4 °C. Each hidden future also places Ireland somewhere
+              between the ensemble's 10th and 90th percentiles.
             </li>
             <li>
               <b>Design standards</b> echo the OPW's Mid-Range (+20% flows) and High-End (+30% flows,
@@ -311,9 +318,9 @@ export function AboutModal({ onClose }) {
           </ul>
           <p className="warn-note">
             This is a serious game for learning and discussion. It isn't an engineering or
-            investment appraisal. To make it research-grade, replace <code>countyClimate()</code> in{" "}
-            <code>src/data/climate.js</code> with gridded TRANSLATE output aggregated to counties,
-            and the exposure indices with CFRAM and NIFM damage data.
+            investment appraisal. The climate signals are real TRANSLATE data, but exposure and
+            damages are stylised. To make it research-grade, replace the exposure indices with
+            CFRAM and NIFM damage data.
           </p>
         </section>
       </div>

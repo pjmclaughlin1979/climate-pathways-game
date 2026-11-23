@@ -45,7 +45,10 @@ export function sampleWorld(seed) {
   const sensitivity = Math.min(1.35, Math.max(0.7, 1 + 0.15 * randn(seed, "sens")));
   // Ice-sheet instability is only plausible in the warmer worlds.
   const ice = scenarioId !== "ssp126" && rand(seed, "ice") < ICE_PROBABILITY * (scenarioId === "ssp585" ? 2 : 1);
-  return { scenarioId, sensitivity, ice };
+  // Where Ireland's regional response sits in the TRANSLATE model spread:
+  // 0 = ensemble mean, ±1 = 90th / 10th percentile.
+  const regional = Math.min(1, Math.max(-1, 0.5 * randn(seed, "regional")));
+  return { scenarioId, sensitivity, ice, regional };
 }
 
 export function trueGlobal(world, year) {
@@ -57,13 +60,13 @@ export function trueGlobal(world, year) {
 
 export function trueClimate(world, county, region, year) {
   const g = trueGlobal(world, year);
-  return countyClimate(county, region, g.gwl, g.gslr, year);
+  return countyClimate(county, region, g.gwl, g.gslr, year, world.regional);
 }
 
 /** One year of noisy observations: natural variability on top of the forced signal. */
 export function observe(seed, world, county, region, year) {
   const g = trueGlobal(world, year);
-  const c = countyClimate(county, region, g.gwl, g.gslr, year);
+  const c = countyClimate(county, region, g.gwl, g.gslr, year, world.regional);
   const hazards = {};
   for (const h of HAZARD_IDS) {
     let v = c.hazards[h] + HAZARDS[h].noise * randn(seed, "obs", h, year);

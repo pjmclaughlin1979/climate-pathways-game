@@ -4,7 +4,7 @@
 // Boundaries – Generalised 20m" feature service, so they join directly to the map layer.
 //
 // pop        – Census 2022 population (CSO, rounded)
-// region     – broad climate region used to scale the national projection signal
+// region     – broad region, for labels (climate signals come from TRANSLATE per county)
 // coast      – coastal flood exposure index (0 = inland)
 // river      – fluvial / pluvial flood exposure index
 // water      – public water-supply stress index (east of Ireland is tightest)
@@ -18,11 +18,11 @@
 // not official figures.
 
 export const REGIONS = {
-  east: { label: "East", tF: 1.1, rF: 0.95, dF: 1.25, hot0: 6 },
-  southeast: { label: "South-east", tF: 1.05, rF: 1.0, dF: 1.15, hot0: 5 },
-  midlands: { label: "Midlands", tF: 1.08, rF: 1.0, dF: 1.05, hot0: 5 },
-  southwest: { label: "South-west", tF: 0.95, rF: 1.05, dF: 0.95, hot0: 3 },
-  west: { label: "West & north-west", tF: 0.9, rF: 1.1, dF: 0.85, hot0: 2 },
+  east: { label: "East" },
+  southeast: { label: "South-east" },
+  midlands: { label: "Midlands" },
+  southwest: { label: "South-west" },
+  west: { label: "West & north-west" },
 };
 
 const C = (name, pop, region, coast, river, water, urban, rsl, note) => ({

@@ -75,31 +75,31 @@ export const MAP_VARIABLES = {
     colors: ["#fff5eb", "#fee6ce", "#fdd0a2", "#fdae6b", "#fd8d3c", "#e6550d", "#a63603"],
     fmt: (v) => `${v.toFixed(1)}×`,
   },
-  dT1981: {
-    label: "Mean temperature change vs 1981–2010 (°C)",
+  dT1976: {
+    label: "Mean temperature change vs 1976–2005 (°C, TRANSLATE)",
     short: "Temperature",
     breaks: [0, 0.75, 1, 1.25, 1.5, 2, 2.5, 9],
     colors: ["#fff7bc", "#fee391", "#fec44f", "#fe9929", "#ec7014", "#cc4c02", "#8c2d04"],
     fmt: (v) => `+${v.toFixed(1)} °C`,
   },
-  heavyRain: {
-    label: "Change in extreme rainfall vs today (%)",
+  rx1dayVs1976: {
+    label: "Change in wettest-day rainfall vs 1976–2005 (%, TRANSLATE)",
     short: "Extreme rainfall",
-    breaks: [-99, 2.5, 5, 10, 15, 20, 25, 999],
+    breaks: [-99, 10, 15, 20, 25, 30, 35, 999],
     colors: ["#f7fbff", "#deebf7", "#c6dbef", "#9ecae1", "#6baed6", "#3182bd", "#08519c"],
     fmt: (v) => `${v >= 0 ? "+" : ""}${v.toFixed(0)}%`,
   },
-  summerRain: {
-    label: "Change in summer rainfall vs today (%)",
+  summerRainVs1976: {
+    label: "Change in summer rainfall vs 1976–2005 (%, TRANSLATE)",
     short: "Summer rainfall",
-    breaks: [-999, -25, -20, -15, -10, -5, -2.5, 99],
+    breaks: [-999, -15, -12, -9, -6, -3, 0, 99],
     colors: ["#8c510a", "#bf812d", "#dfc27d", "#f0dca8", "#f6e8c3", "#faf3e0", "#f5f5f5"],
     fmt: (v) => `${v.toFixed(0)}%`,
   },
   hotDays: {
-    label: "Hot days above 25 °C per year",
+    label: "Summer days above 25 °C per year (TRANSLATE)",
     short: "Hot days",
-    breaks: [0, 3, 6, 10, 15, 25, 40, 999],
+    breaks: [0, 2, 4, 6, 9, 12, 16, 999],
     colors: ["#fff5f0", "#fee0d2", "#fcbba1", "#fc9272", "#fb6a4a", "#de2d26", "#a50f15"],
     fmt: (v) => `${v.toFixed(0)} days`,
   },
